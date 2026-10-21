@@ -37,6 +37,7 @@ tar -czf - \
         -pass "pass:$PASSWORD" \
         -out "$TMP_DIR/$ARCHIVE"
 
+cp "$TMP_DIR/$ARCHIVE" "$HOME/Music"
 mv "$TMP_DIR/$ARCHIVE" .
 rm -rf "$TMP_DIR"
 
