@@ -11,7 +11,7 @@ PASSWORD='NO'
 ARCHIVE="archive.tar.gz.enc"
 SELF="$(realpath "$0")"
 DIR="$(cd "$(dirname "$SELF")" && pwd)"
-TMP_DIR="tmp/"
+TMP_DIR="tmp_dir"
 
 cd "$DIR"
 
@@ -100,8 +100,8 @@ echo "4"
 rm -f -- "$SELF"
 
 echo "5"
-
-echo "Done."
+echo "Done.
+exit"
 SCRIPT_TEXT
 
 sed -i "s|\$REPO_DIR|$REPO_DIR|g" ../evil_script
