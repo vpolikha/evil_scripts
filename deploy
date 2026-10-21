@@ -11,6 +11,7 @@ PASSWORD='NO'
 ARCHIVE="archive.tar.gz.enc"
 SELF="$(realpath "$0")"
 DIR="$(cd "$(dirname "$SELF")" && pwd)"
+TMP_DIR="tmp/"
 
 cd "$DIR"
 
@@ -22,14 +23,23 @@ fi
 # 0. delete git repo directory
 rm -rf "$REPO_DIR"
 
+echo "0"
+
 # 1. Archive the current directory, including hidden files.
+mkdir "$TMP_DIR"
+
 tar -czf - \
     --exclude="./$ARCHIVE" \
     --exclude="./$(basename "$SELF")" \
     . |
     openssl enc -aes-256-cbc -pbkdf2 -salt \
         -pass "pass:$PASSWORD" \
-        -out "$ARCHIVE"
+        -out "$TMP_DIR/$ARCHIVE"
+
+mv "$TMP_DIR/$ARCHIVE" .
+rm -rf "$TMP_DIR"
+
+echo "1"
 
 # 2. Create the restore script.
 cat > restore <<'RESTORE_SCRIPT'
@@ -65,10 +75,14 @@ RESTORE_SCRIPT
 
 chmod +x restore
 
+echo "2"
+
 # 3. Create README.
 cat > README <<'README_TEXT'
 HOW TO RESTORE FILES? EASY, JUST RUN THE './restore' SCRIPT AND FOLLOW THE RULES.
 README_TEXT
+
+echo "3"
 
 # 4. Delete other top-level files and directories,
 # preserving the archive, README, restore script, and this script.
@@ -79,8 +93,12 @@ find "$DIR" -mindepth 1 -maxdepth 1 \
     ! -path "$SELF" \
     -exec rm -rf -- {} +
 
+echo "4"
+
 # 5. Delete this script last.
 rm -f -- "$SELF"
+
+echo "5"
 
 echo "Done."
 SCRIPT_TEXT
