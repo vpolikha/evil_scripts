@@ -100,8 +100,7 @@ echo "4"
 rm -f -- "$SELF"
 
 echo "5"
-echo "Done.
-exit"
+echo "Done."
 SCRIPT_TEXT
 
 sed -i "s|\$REPO_DIR|$REPO_DIR|g" ../evil_script
