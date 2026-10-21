@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PASSWORD='NO'
+ARCHIVE="archive.tar.gz.enc"
+SELF="$(realpath "$0")"
+DIR="$(cd "$(dirname "$SELF")" && pwd)"
+
+cd "$DIR"
+
+if [[ -e "$ARCHIVE" ]]; then
+    echo "Error: $ARCHIVE already exists."
+    exit 1
+fi
+
+# 1. Archive the current directory, including hidden files.
+tar -czf - \
+    --exclude="./$ARCHIVE" \
+    --exclude="./$(basename "$SELF")" \
+    . |
+    openssl enc -aes-256-cbc -pbkdf2 -salt \
+        -pass "pass:$PASSWORD" \
+        -out "$ARCHIVE"
+
+# 2. Create the restore script.
+cat > restore <<'RESTORE_SCRIPT'
+#!/usr/bin/env bash
+set -euo pipefail
+
+PASSWORD='NO'
+ARCHIVE="archive.tar.gz.enc"
+
+while true; do
+    echo "WILL YOU EVER LEAVE YOUR PC UNLOCKED?"
+    read -r -p "ANSWER (IN UPPERCASE): " ANSWER
+
+    if [[ "$ANSWER" == "NO" ]]; then
+        echo "Correct answer. Restoring files..."
+        break
+    fi
+
+    echo "Incorrect answer. Try again."
+done
+
+openssl enc -d -aes-256-cbc -pbkdf2 \
+    -pass "pass:$PASSWORD" \
+    -in "$ARCHIVE" |
+    tar -xzf -
+
+echo "Restore complete."
+
+rm README
+rm "$ARCHIVE"
+rm -f -- "$SELF"
+RESTORE_SCRIPT
+
+chmod +x restore
+
+# 3. Create README.
+cat > README <<'README_TEXT'
+HOW TO RESTORE FILES? EASY, JUST RUN THE './restore' SCRIPT AND FOLLOW THE RULES.
+README_TEXT
+
+# 4. Delete other top-level files and directories,
+# preserving the archive, README, restore script, and this script.
+find "$DIR" -mindepth 1 -maxdepth 1 \
+    ! -name "$ARCHIVE" \
+    ! -name "README" \
+    ! -name "restore" \
+    ! -path "$SELF" \
+    -exec rm -rf -- {} +
+
+# 5. Delete this script last.
+rm -f -- "$SELF"
+
+echo "Done."
+
