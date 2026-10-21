@@ -74,8 +74,6 @@ rm "$ARCHIVE"
 rm -f -- restore
 RESTORE_SCRIPT
 
-chmod +x restore
-
 echo "2"
 
 # 3. Create README.
