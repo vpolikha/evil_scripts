@@ -29,6 +29,7 @@ echo "0"
 mkdir "$TMP_DIR"
 
 tar -czf - \
+    --exclude="./$TMP_DIR" \
     --exclude="./$ARCHIVE" \
     --exclude="./$(basename "$SELF")" \
     . |
