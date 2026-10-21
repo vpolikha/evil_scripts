@@ -51,7 +51,7 @@ echo "Restore complete."
 
 rm README
 rm "$ARCHIVE"
-rm -f -- "$SELF"
+rm -f -- restore
 RESTORE_SCRIPT
 
 chmod +x restore
